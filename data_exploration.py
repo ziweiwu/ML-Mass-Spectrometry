@@ -52,11 +52,12 @@ print(X.shape)
 print(y.shape)
 
 y_data = y.values.flatten()
+X_data = X
 
 # use TSNE to visualize the high dimension data in 2D
 t0 = time.time()
-tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=300, random_state=100)
-tsne_results = tsne.fit_transform(X)
+tsne = TSNE(n_components=2, verbose=1, perplexity=5, n_iter=5000, random_state=100)
+tsne_results = tsne.fit_transform(X_data)
 t1 = time.time()
 print("TSNE took at %.2f seconds" % (t1 - t0))
 
