@@ -54,18 +54,28 @@ print(y.shape)
 y_data = y.values.flatten()
 X_data = X
 
-# use TSNE to visualize the high dimension data in 2D
-t0 = time.time()
-tsne = TSNE(n_components=2, verbose=1, perplexity=5, n_iter=5000, random_state=100)
-tsne_results = tsne.fit_transform(X_data)
-t1 = time.time()
-print("TSNE took at %.2f seconds" % (t1 - t0))
 
-# visualize TSNE and save the plot
-x_axis = tsne_results[:, 0]
-y_axis = tsne_results[:, 1]
-plt.scatter(x_axis, y_axis, c=y_data, cmap=plt.cm.get_cmap("jet", 100))
-plt.colorbar(ticks=range(10))
-plt.clim(-0.5, 9.5)
-plt.title("TSNE Visualization")
-plt.savefig("./images/tsne_graph.png", dpi=600)
+def tsne_visualization():
+    PERLEXITY=[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+    fig, axes = plt.subplots(5, 2, figsize=(15, 6), facecolor='w', edgecolor='k')
+    fig.subplots_adjust(hspace=.5, wspace=.001)
+    for i in range(10):
+        ax = axes.flatten()[i]
+        t0 = time.time()
+        tsne = TSNE(n_components=2, verbose=1, perplexity=PERLEXITY[i], n_iter=5000, random_state=100)
+        tsne_results = tsne.fit_transform(X_data)
+        t1 = time.time()
+        print("TSNE took at %.2f seconds" % (t1 - t0))
+        # visualize TSNE and save the plot
+        x_axis = tsne_results[:, 0]
+        y_axis = tsne_results[:, 1]
+        ax.scatter(x_axis, y_axis, c=y_data, cmap=plt.cm.get_cmap("jet", 100))
+        # ax.colorbar(ticks=range(10))
+        # ax.clim(-0.5, 9.5)
+        # ax.title("TSNE Visualization with perlexity {}".format(PERLEXITY[i]))
+    fig.show()
+    fig.savefig("./images/tsne_graph.png", dpi=600)
+
+# use TSNE to visualize the high dimension data in 2D
+tsne_visualization()
+
