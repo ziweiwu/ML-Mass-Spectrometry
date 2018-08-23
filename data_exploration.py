@@ -15,8 +15,7 @@ def convert_to_csv(input, output):
             o.writerow(line.split())
 
 
-# convert data files to csv format
-convert_to_csv("./data/original/train.data", "./data/train.csv")
+# convert data files to csv format convert_to_csv("./data/original/train.data", "./data/train.csv")
 convert_to_csv("./data/original/train.labels", "./data/train_labels.csv")
 convert_to_csv("./data/original/test.data", "./data/test.csv")
 convert_to_csv("./data/original/test.data", "./data/test.csv")
@@ -43,6 +42,9 @@ def mkdir_p(mypath):
 # make directory to store images
 mkdir_p("./images")
 
+# make directory to store model
+mkdir_p("./models")
+
 # load the dataset
 X = pd.read_csv("data/train.csv")
 y = pd.read_csv("data/train_labels.csv")
@@ -51,31 +53,37 @@ y = pd.read_csv("data/train_labels.csv")
 print(X.shape)
 print(y.shape)
 
+X_data = X.values
 y_data = y.values.flatten()
-X_data = X
 
 
 def tsne_visualization():
-    PERLEXITY=[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
-    fig, axes = plt.subplots(5, 2, figsize=(15, 6), facecolor='w', edgecolor='k')
-    fig.subplots_adjust(hspace=.5, wspace=.001)
+    PERLEXITY = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+    fig, axes = plt.subplots(5, 2, figsize=(20, 40), facecolor='w', edgecolor='k')
+    fig.subplots_adjust(hspace=.1, wspace=.1)
     for i in range(10):
         ax = axes.flatten()[i]
-        t0 = time.time()
         tsne = TSNE(n_components=2, verbose=1, perplexity=PERLEXITY[i], n_iter=5000, random_state=100)
         tsne_results = tsne.fit_transform(X_data)
-        t1 = time.time()
-        print("TSNE took at %.2f seconds" % (t1 - t0))
-        # visualize TSNE and save the plot
         x_axis = tsne_results[:, 0]
         y_axis = tsne_results[:, 1]
-        ax.scatter(x_axis, y_axis, c=y_data, cmap=plt.cm.get_cmap("jet", 100))
-        # ax.colorbar(ticks=range(10))
-        # ax.clim(-0.5, 9.5)
-        # ax.title("TSNE Visualization with perlexity {}".format(PERLEXITY[i]))
-    fig.show()
-    fig.savefig("./images/tsne_graph.png", dpi=600)
+        ax.scatter(x_axis, y_axis, c=y_data)
+        ax.set_title("With perplexity {}".format(PERLEXITY[i]))
+    fig.savefig("./images/tsne_graph.png", dpi=300)
+
 
 # use TSNE to visualize the high dimension data in 2D
 tsne_visualization()
 
+
+# Shuttle the data and split it into training and test set
+X_train, X_test, y_train, y_test \
+    = train_test_split(X, y, test_size=0.20, random_state=100, stratify=y, shuffle=True)
+
+# save the train and test csv files
+mkdir_p("./data/train")
+mkdir_p("./data/test")
+X_train.to_csv("./data/train/X_train.csv")
+y_train.to_csv("./data/train/y_train.csv")
+X_test.to_csv("./data/test/X_test.csv")
+y_test.to_csv("./data/test/y_test.csv")
