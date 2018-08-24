@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 from sklearn import svm, ensemble, linear_model
 from sklearn.model_selection import GridSearchCV
 from sklearn.feature_selection import SelectFromModel
 from sklearn.metrics import recall_score
 from matplotlib.pyplot import figure
-import pandas as pd
-import numpy as np
 
 ########################################################################################
 #                    Load dataset
@@ -53,17 +53,17 @@ def model_tune_params(model, params):
 
 sgd_params = {
     'alpha': [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000],
-    'penalty': ('l2', 'l1')
+    'penalty': ['l1']
 }
 
 logit_params = {
     'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000],
-    'penalty': ('l2', 'l1')
+    'penalty': ['l1']
 }
 
 linear_svm_params = {
     'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000],
-    'penalty': ('l2', 'l1')
+    'penalty': ['l1']
 }
 
 rf_params = {
@@ -86,7 +86,8 @@ alpha_params = [0.0001, 0.00015, 0.0002, 0.00025, 0.0003, 0.0004, 0.0005, 0.001,
 # perform feature selection using sparse svm
 def sgd_feature_selection(alpha_params):
     for alpha in alpha_params:
-        est = linear_model.SGDClassifier(random_state=100, penalty="l1", alpha=alpha, tol=1e-3)
+        est = linear_model.SGDClassifier(random_state=100, alpha=alpha, tol=1e-3, penalty="l1", max_iter=5000,
+                                         n_jobs=-1)
         transformer = SelectFromModel(estimator=est)
         train_features = transformer.fit_transform(X_train, y_train)
         test_features = transformer.transform(X_test)
@@ -113,7 +114,7 @@ C_params.reverse()
 
 
 # perform feature selection using sparse svm
-def svm_feature_selection(C_params):
+def svm_feature_selection(C_paramas):
     for C in C_params:
         est = svm.LinearSVC(random_state=100, penalty="l1", C=C, dual=False, tol=1e-4)
         transformer = SelectFromModel(estimator=est)
@@ -211,6 +212,6 @@ plt.plot(n_features_sgd, recall_sgd, 'o-', color='orange')
 plt.plot(n_features_svm, recall_svm, 'o-', color='blue')
 plt.plot(n_features_rf, recall_rf, 'o-', color='green')
 plt.plot(n_features_logit, recall_logit, 'o-', color='red')
-plt.legend(['SGD', 'SVM', 'Random Forest', 'Logistic Regression'], loc=5)
+plt.legend(['SGD', 'SVM', 'Random Forest', 'Logistic Regression', 'Neural Network'], loc=4)
 plt.axis([0, 1000, 0.5, 1])
 plt.savefig('images/feature_selection_performance.png', dpi=600)
