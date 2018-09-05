@@ -1,13 +1,13 @@
 import os
+import pickle
 import time
-import json
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 from sklearn import svm, ensemble, linear_model
-from sklearn.model_selection import GridSearchCV, cross_val_score
-from sklearn.neural_network import MLPClassifier
-from sklearn.externals import joblib
 from sklearn.metrics import recall_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.neural_network import MLPClassifier
 
 # load the training data
 print("Loading data sets...")
@@ -77,7 +77,6 @@ def model_tune_params(model, params):
                                  param_grid=params, cv=5, n_jobs=-1,
                                  scoring="recall_macro")
         new_model.fit(X_train, y_train)
-        print(new_model.best_params_, '\n')
         return new_model
 
 
@@ -117,16 +116,18 @@ none_linear_svm = model_tune_params(none_linear_svm, none_linear_svm_params)
 rf = model_tune_params(rf, rf_params)
 nn = model_tune_params(nn, nn_params)
 
-#################################################################################
-# test the models after parameter tuning
-#################################################################################
-# save the models
-if not os.path.exists("models"):
-    os.makedirs("models")
 
-joblib.dump(logit, "models/logit.pkl", compress=3)
-joblib.dump(linear_svm, "models/linear_svm.pkl", compress=3)
-joblib.dump(none_linear_svm, "models/none_linear_svm.pkl", compress=3)
-joblib.dump(rf, "models/rf.pkl", compress=3)
-joblib.dump(nn, "models/nn.pkl", compress=3)
+# save the models
+def save_model(model, path):
+    if not os.path.exists("models"):
+        os.makedirs("models")
+    pickle.dump(model, open("models/" + path, 'wb'))
+
+
+save_model(logit, "logit.pkl")
+save_model(linear_svm, "linear_svm.pkl")
+save_model(none_linear_svm, "none_linear_svm.pkl")
+save_model(rf, "rf.pkl")
+save_model(nn, "nn.pkl")
+
 print("Models saved.")
